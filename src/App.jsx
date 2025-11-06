@@ -1,28 +1,51 @@
-import { useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import NavBar from './components/NavBar';
+import Hero from './components/Hero';
+import Dashboard from './components/Dashboard';
+import Auth from './components/Auth';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [section, setSection] = useState('home');
+
+  useEffect(() => {
+    const authed = localStorage.getItem('trashbotics-auth') === 'true';
+    setLoggedIn(authed);
+  }, []);
+
+  const handleLoginSuccess = () => {
+    setLoggedIn(true);
+    setSection('home');
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+    <div className="min-h-screen bg-gradient-to-b from-white to-emerald-50 dark:from-neutral-950 dark:to-neutral-900 text-neutral-900 dark:text-neutral-100">
+      <NavBar onNavigate={setSection} loggedIn={loggedIn} />
 
-export default App
+      {!loggedIn ? (
+        <>
+          <Hero onGetStarted={() => setSection('auth')} />
+          {section === 'auth' && <Auth onSuccess={handleLoginSuccess} />}
+        </>
+      ) : (
+        <>
+          <Hero onGetStarted={() => setSection('home')} />
+          <Dashboard />
+        </>
+      )}
+
+      <footer className="border-t border-neutral-200 dark:border-neutral-800 mt-10">
+        <div className="max-w-7xl mx-auto px-4 py-8 text-sm text-neutral-600 dark:text-neutral-400 flex flex-col md:flex-row items-center justify-between gap-3">
+          <div>© {new Date().getFullYear()} Trashbotics — Smart, Clean, Rewarding.</div>
+          <div className="flex items-center gap-4">
+            <a href="#" className="hover:text-emerald-600">Privacy</a>
+            <a href="#" className="hover:text-emerald-600">Terms</a>
+            <a href="#" className="hover:text-emerald-600">Contact</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
